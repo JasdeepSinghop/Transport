@@ -9,7 +9,7 @@ export const createDailyRecord = async (data) => {
 // Get all records for a truckNumber
 export const getDailyRecordsByTruck = async (truckId) => {
   return await prisma.dailyRecord.findMany({
-    where: { truckId },
+    where: { truckId, isDeleted: false },
     orderBy: { date: 'desc' }
   });
 };
@@ -17,7 +17,7 @@ export const getDailyRecordsByTruck = async (truckId) => {
 // Get by record id
 export const getDailyRecordById = async (id) => {
   const record = await prisma.dailyRecord.findUnique({ where: { id: Number(id) } });
-  if (!record) throw { status: 404, message: DAILY_MESSAGES.NOT_FOUND };
+  if (!record || record.isDeleted) throw { status: 404, message: DAILY_MESSAGES.NOT_FOUND };
   return record;
 };
 
@@ -30,8 +30,11 @@ export const updateDailyRecord = async (id, data) => {
   });
 };
 
-// Delete record
+// Delete record (soft delete)
 export const deleteDailyRecord = async (id) => {
   await getDailyRecordById(id);
-  return await prisma.dailyRecord.delete({ where: { id: Number(id) } });
+  return await prisma.dailyRecord.update({
+    where: { id: Number(id) },
+    data: { isDeleted: true }
+  });
 };

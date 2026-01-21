@@ -53,6 +53,8 @@ model DailyRecord {
 
   notes               String?
 
+  isDeleted           Boolean   @default(false)
+
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 }
