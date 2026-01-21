@@ -4,6 +4,7 @@ import "dotenv/config"
 
 import truckRoutes from './routes/truck.routes.js';
 import dailyRoutes from './routes/daily.routes.js';
+import authRoutes from './routes/auth.routes.js';
 import errorHandler from './middlewares/errorHandler.js';
 
 const app = express();
@@ -11,6 +12,7 @@ const PORT = process.env.PORT||5000
 app.use(cors());
 app.use(express.json());
 
+app.use('/auth', authRoutes);
 app.use('/trucks', truckRoutes);
 app.use('/daily', dailyRoutes);
 
