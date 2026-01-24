@@ -2,7 +2,23 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
+// Singleton Prisma instance to reuse connections and improve performance
+let prisma;
+
+if (process.env.NODE_ENV === 'production') {
+  prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL + '?schema=public&pool_size=5&socket_timeout=10'
+      }
+    }
+  });
+} else {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient();
+  }
+  prisma = global.prisma;
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
@@ -16,7 +32,7 @@ export const registerUser = async (email, password) => {
       throw new Error('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 8);
 
     const user = await prisma.user.create({
       data: {
